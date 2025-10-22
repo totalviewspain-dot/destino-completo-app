@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Destino Completo - Tu Mapa Integral</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a0933 0%, #2d1154 50%, #1a0933 100%);
+            color: #fff;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 20px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 20px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+        }
+
+        h1 {
+            font-size: 2.5em;
+            background: linear-gradient(45deg, #ff6b9d, #c06bff, #6bbfff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #c0b3d4;
+            font-size: 1.1em;
+        }
+
+        .tabs {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        .tab {
+            padding: 12px 24px;
+            background: rgba(255,255,255,0.1);
+            border: 2px solid rgba(255,255,255,0.2);
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.95em;
+        }
+
+        .tab:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-2px);
+        }
+
+        .tab.active {
+            background: linear-gradient(45deg, #ff6b9d, #c06bff);
+            border-color: transparent;
+        }
+
+        .section {
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card {
+            background: rgba(255,255,255,0.08);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #e0d5f0;
+            font-weight: 500;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 8px;
+            color: #fff;
+            font-size: 1em;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #c06bff;
+        }
+
+        button {
+            padding: 14px 32px;
+            background: linear-gradient(45deg, #ff6b9d, #c06bff);
+            border: none;
+            border-radius: 25px;
+            color: #fff;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+
+        button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(192, 107, 255, 0.4);
+        }
+
+        .result {
+            background: linear-gradient(135deg, rgba(255,107,157,0.2), rgba(192,107,255,0.2));
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 20px;
+            border: 2px solid rgba(192,107,255,0.3);
+        }
+
+        .result h3 {
+            margin-bottom: 15px;
+            color: #ff6b9d;
+        }
+
+        .system-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .info-card {
+            background: rgba(255,255,255,0.05);
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #c06bff;
+        }
+
+        .info-card h4 {
+            color: #ff6b9d;
+            margin-bottom: 8px;
+        }
+
+        .daily-message {
+            background: linear-gradient(135deg, rgba(107,191,255,0.2), rgba(192,107,255,0.2));
+            border-radius: 15px;
+            padding: 25px;
+            border: 2px solid rgba(107,191,255,0.3);
+        }
+
+        .energy-bar {
+            height: 10px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 5px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .energy-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff6b9d, #c06bff, #6bbfff);
+            transition: width 1s ease;
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px;
+            color: #9b8bba;
+            margin-top: 50px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>✨ Destino Completo ✨</h1>
+            <p class="subtitle">Tu mapa integral para descubrir propósito, profesión y amor</p>
+        </header>
+
+        <div class="tabs">
+            <div class="tab active" onclick="showSection('inicio')">🏠 Inicio</div>
+            <div class="tab" onclick="showSection('perfil')">👤 Mi Perfil</div>
+            <div class="tab" onclick="showSection('diario')">📅 Mensaje Diario</div>
+            <div class="tab" onclick="showSection('compatibilidad')">💕 Compatibilidad</div>
+            <div class="tab" onclick="showSection('predicciones')">🔮 Predicciones</div>
+        </div>
+
+        <!-- SECCIÓN INICIO -->
+        <div id="inicio" class="section active">
+            <div class="card">
+                <h2>Bienvenido a Destino Completo</h2>
+                <p style="margin: 20px 0; line-height: 1.8;">
+                    Esta app combina los sistemas más poderosos de autoconocimiento para revelarte tu verdadero propósito de vida, 
+                    guiarte en tu carrera profesional y mostrarte el camino en el amor.
+                </p>
+
+                <div class="system-info">
+                    <div class="info-card">
+                        <h4>🌟 Carta Astral</h4>
+                        <p>Análisis completo de planetas, signos y casas para entender tu esencia cósmica.</p>
+                    </div>
+                    <div class="info-card">
+                        <h4>🎭 Diseño Humano</h4>
+                        <p>Descubre tu tipo energético y cómo tomar decisiones alineadas.</p>
+                    </div>
+                    <div class="info-card">
+                        <h4>🌀 Kin Maya</h4>
+                        <p>Tu misión espiritual y energía diaria según el calendario Tzolkin.</p>
+                    </div>
+                    <div class="info-card">
+                        <h4>🔢 Numerología</h4>
+                        <p>Los números que definen tu camino de vida y destino.</p>
+                    </div>
+                    <div class="info-card">
+                        <h4>☯️ I Ching</h4>
+                        <p>Sabiduría ancestral china para navegar cambios y transformaciones.</p>
+                    </div>
+                    <div class="info-card">
+                        <h4>🃏 Tarot</h4>
+                        <p>Guía intuitiva diaria para tus decisiones importantes.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECCIÓN PERFIL -->
+        <div id="perfil" class="section">
+            <div class="card">
+                <h2>Crea Tu Perfil Personal</h2>
+                <form id="profileForm">
+                    <div class="form-group">
+                        <label>Nombre Completo:</label>
+                        <input type="text" id="nombre" placeholder="Tu nombre" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Fecha de Nacimiento:</label>
+                        <input type="date" id="fecha" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Hora de Nacimiento (importante para precisión):</label>
+                        <input type="time" id="hora" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Ciudad de Nacimiento:</label>
+                        <input type="text" id="ciudad" placeholder="Ciudad, País" required>
+                    </div>
+
+                    <button type="button" onclick="generarPerfil()">✨ Generar Mi Perfil Completo</button>
+                </form>
+
+                <div id="resultadoPerfil"></div>
+            </div>
+        </div>
+
+        <!-- SECCIÓN MENSAJE DIARIO -->
+        <div id="diario" class="section">
+            <div class="card daily-message">
+                <h2>💫 Tu Mensaje de Hoy</h2>
+                <p style="margin: 15px 0;"><strong>Miércoles, 22 de Octubre de 2025</strong></p>
+
+                <div class="info-card">
+                    <h4>🌟 Energía Astrológica</h4>
+                    <p>El Sol en Escorpio te invita a profundizar en tu interior. Mercurio favorece comunicaciones importantes.</p>
+                    <div class="energy-bar"><div class="energy-fill" style="width: 85%;"></div></div>
+                </div>
+
+                <div class="info-card">
+                    <h4>🌀 Kin Maya del Día</h4>
+                    <p><strong>Kin 147 - Mano Azul Resonante</strong><br>
+                    Día de sanación y realización. Tu poder se expande cuando ayudas a otros.</p>
+                    <div class="energy-bar"><div class="energy-fill" style="width: 92%;"></div></div>
+                </div>
+
+                <div class="info-card">
+                    <h4>🔢 Numerología</h4>
+                    <p>Día número 4 - Estructura y trabajo. Es momento de organizar y construir bases sólidas.</p>
+                    <div class="energy-bar"><div class="energy-fill" style="width: 78%;"></div></div>
+                </div>
+
+                <div class="result" style="margin-top: 20px;">
+                    <h3>💡 Consejo del Día</h3>
+                    <p>Hoy es un día poderoso para trabajar en proyectos que requieren dedicación y enfoque. 
+                    Tu energía sanadora está especialmente activa - considera ayudar a alguien que lo necesite. 
+                    Evita dispersarte y mantén la disciplina en lo que inicies.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECCIÓN COMPATIBILIDAD -->
+        <div id="compatibilidad" class="section">
+            <div class="card">
+                <h2>💕 Análisis de Compatibilidad</h2>
+                <form id="compatForm">
+                    <div class="form-group">
+                        <label>Tu Fecha de Nacimiento:</label>
+                        <input type="date" id="fecha1" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Fecha de Nacimiento de la Otra Persona:</label>
+                        <input type="date" id="fecha2" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Tipo de Relación:</label>
+                        <select id="tipoRelacion">
+                            <option value="romantica">Romántica</option>
+                            <option value="amistad">Amistad</option>
+                            <option value="negocios">Negocios</option>
+                            <option value="familiar">Familiar</option>
+                        </select>
+                    </div>
+
+                    <button type="button" onclick="analizarCompatibilidad()">🔮 Analizar Compatibilidad</button>
+                </form>
+
+                <div id="resultadoCompat"></div>
+            </div>
+        </div>
+
+        <!-- SECCIÓN PREDICCIONES -->
+        <div id="predicciones" class="section">
+            <div class="card">
+                <h2>🔮 Tus Predicciones Personalizadas</h2>
+
+                <div class="system-info">
+                    <div class="info-card">
+                        <h4>❤️ Amor</h4>
+                        <p><strong>Próximos 30 días:</strong><br>
+                        Venus en tránsito por tu casa del amor trae oportunidades románticas. 
+                        La segunda semana del mes es especialmente favorable para nuevos encuentros.</p>
+                    </div>
+
+                    <div class="info-card">
+                        <h4>💼 Profesión</h4>
+                        <p><strong>Próximos 30 días:</strong><br>
+                        Marte potencia tu ambición profesional. Es buen momento para proponer ideas innovadoras 
+                        y buscar reconocimiento. Evita conflictos laborales del 15 al 20.</p>
+                    </div>
+
+                    <div class="info-card">
+                        <h4>🎯 Propósito</h4>
+                        <p><strong>Ciclo actual:</strong><br>
+                        Estás en una fase de transformación profunda. Tu propósito se aclara cuando te conectas 
+                        con actividades creativas y de servicio a otros.</p>
+                    </div>
+
+                    <div class="info-card">
+                        <h4>💰 Finanzas</h4>
+                        <p><strong>Próximos 30 días:</strong><br>
+                        Júpiter favorece expansión económica, pero Saturno pide prudencia. 
+                        Invierte en formación y evita gastos impulsivos.</p>
+                    </div>
+                </div>
+
+                <div class="result" style="margin-top: 20px;">
+                    <h3>📅 Fechas Clave del Mes</h3>
+                    <ul style="line-height: 2;">
+                        <li>25 de Octubre: Luna Nueva - Ideal para nuevos comienzos</li>
+                        <li>31 de Octubre: Portal energético - Meditación y reflexión</li>
+                        <li>8 de Noviembre: Luna Llena - Culminaciones y cierres</li>
+                        <li>15 de Noviembre: Mercurio directo - Comunicaciones claras</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>✨ Destino Completo © 2025 | Creado con 💜 para tu evolución espiritual</p>
+            <p style="margin-top: 10px; font-size: 0.9em;">
+                Prototipo funcional - Versión Beta | Comparte con otros buscadores de luz
+            </p>
+        </footer>
+    </div>
+
+    <script>
+        function showSection(sectionId) {
+            // Ocultar todas las secciones
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.remove('active');
+            });
+
+            // Mostrar la sección seleccionada
+            document.getElementById(sectionId).classList.add('active');
+
+            // Actualizar tabs
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+        }
+
+        function generarPerfil() {
+            const nombre = document.getElementById('nombre').value;
+            const fecha = document.getElementById('fecha').value;
+            const hora = document.getElementById('hora').value;
+            const ciudad = document.getElementById('ciudad').value;
+
+            if (!nombre || !fecha || !hora || !ciudad) {
+                alert('Por favor completa todos los campos');
+                return;
+            }
+
+            // Calcular edad y signo
+            const fechaNac = new Date(fecha);
+            const hoy = new Date();
+            const edad = hoy.getFullYear() - fechaNac.getFullYear();
+            const mes = fechaNac.getMonth() + 1;
+            const dia = fechaNac.getDate();
+
+            // Determinar signo zodiacal (simplificado)
+            let signo = '';
+            if ((mes == 3 && dia >= 21) || (mes == 4 && dia <= 19)) signo = 'Aries ♈';
+            else if ((mes == 4 && dia >= 20) || (mes == 5 && dia <= 20)) signo = 'Tauro ♉';
+            else if ((mes == 5 && dia >= 21) || (mes == 6 && dia <= 20)) signo = 'Géminis ♊';
+            else if ((mes == 6 && dia >= 21) || (mes == 7 && dia <= 22)) signo = 'Cáncer ♋';
+            else if ((mes == 7 && dia >= 23) || (mes == 8 && dia <= 22)) signo = 'Leo ♌';
+            else if ((mes == 8 && dia >= 23) || (mes == 9 && dia <= 22)) signo = 'Virgo ♍';
+            else if ((mes == 9 && dia >= 23) || (mes == 10 && dia <= 22)) signo = 'Libra ♎';
+            else if ((mes == 10 && dia >= 23) || (mes == 11 && dia <= 21)) signo = 'Escorpio ♏';
+            else if ((mes == 11 && dia >= 22) || (mes == 12 && dia <= 21)) signo = 'Sagitario ♐';
+            else if ((mes == 12 && dia >= 22) || (mes == 1 && dia <= 19)) signo = 'Capricornio ♑';
+            else if ((mes == 1 && dia >= 20) || (mes == 2 && dia <= 18)) signo = 'Acuario ♒';
+            else signo = 'Piscis ♓';
+
+            // Calcular número de camino de vida (simplificado)
+            const sumaFecha = dia + mes + fechaNac.getFullYear();
+            let caminoVida = sumaFecha.toString().split('').reduce((a, b) => parseInt(a) + parseInt(b), 0);
+            while (caminoVida > 9 && caminoVida != 11 && caminoVida != 22 && caminoVida != 33) {
+                caminoVida = caminoVida.toString().split('').reduce((a, b) => parseInt(a) + parseInt(b), 0);
+            }
+
+            const resultado = `
+                <div class="result">
+                    <h3>✨ Perfil de ${nombre}</h3>
+                    <div class="system-info">
+                        <div class="info-card">
+                            <h4>🌟 Datos Personales</h4>
+                            <p><strong>Edad:</strong> ${edad} años<br>
+                            <strong>Lugar:</strong> ${ciudad}</p>
+                        </div>
+                        <div class="info-card">
+                            <h4>♈ Astrología</h4>
+                            <p><strong>Signo Solar:</strong> ${signo}<br>
+                            Tu esencia está marcada por las cualidades de ${signo}</p>
+                        </div>
+                        <div class="info-card">
+                            <h4>🎭 Diseño Humano</h4>
+                            <p><strong>Tipo:</strong> Generador<br>
+                            <strong>Estrategia:</strong> Esperar para responder</p>
+                        </div>
+                        <div class="info-card">
+                            <h4>🔢 Numerología</h4>
+                            <p><strong>Camino de Vida:</strong> ${caminoVida}<br>
+                            Tu misión está relacionada con el número ${caminoVida}</p>
+                        </div>
+                        <div class="info-card">
+                            <h4>🌀 Kin Maya</h4>
+                            <p><strong>Kin de Nacimiento:</strong> Dragón Rojo<br>
+                            Energía de inicio y nutrición</p>
+                        </div>
+                        <div class="info-card">
+                            <h4>🎯 Propósito de Vida</h4>
+                            <p>Viniste a este mundo para crear, transformar y servir. 
+                            Tu mayor regalo es tu capacidad de manifestar ideas en realidad.</p>
+                        </div>
+                    </div>
+                    <div style="margin-top: 20px; padding: 20px; background: rgba(255,255,255,0.05); border-radius: 10px;">
+                        <h4 style="color: #ff6b9d; margin-bottom: 10px;">💡 Recomendaciones Personalizadas:</h4>
+                        <ul style="line-height: 2;">
+                            <li>✨ Practica meditación diaria para conectar con tu intuición</li>
+                            <li>🌱 Desarrolla tu creatividad en proyectos que te apasionen</li>
+                            <li>💪 Confía en tu autoridad interna antes de tomar decisiones</li>
+                            <li>❤️ En el amor, busca parejas que respeten tu necesidad de espacio</li>
+                            <li>💼 Tu vocación ideal está en áreas creativas o de servicio</li>
+                        </ul>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('resultadoPerfil').innerHTML = resultado;
+        }
+
+        function analizarCompatibilidad() {
+            const fecha1 = document.getElementById('fecha1').value;
+            const fecha2 = document.getElementById('fecha2').value;
+            const tipo = document.getElementById('tipoRelacion').value;
+
+            if (!fecha1 || !fecha2) {
+                alert('Por favor completa ambas fechas');
+                return;
+            }
+
+            // Simulación de compatibilidad
+            const porcentaje = Math.floor(Math.random() * 30) + 65;
+
+            let tipoTexto = '';
+            if (tipo === 'romantica') tipoTexto = '💕 Romántica';
+            else if (tipo === 'amistad') tipoTexto = '🤝 Amistad';
+            else if (tipo === 'negocios') tipoTexto = '💼 Negocios';
+            else tipoTexto = '👨‍👩‍👧‍👦 Familiar';
+
+            const resultado = `
+                <div class="result">
+                    <h3>💫 Análisis de Compatibilidad ${tipoTexto}</h3>
+                    <div style="text-align: center; margin: 30px 0;">
+                        <div style="font-size: 3em; color: #ff6b9d;">${porcentaje}%</div>
+                        <p style="font-size: 1.2em; margin-top: 10px;">Nivel de Compatibilidad</p>
+                        <div class="energy-bar" style="margin: 20px auto; max-width: 300px;">
+                            <div class="energy-fill" style="width: ${porcentaje}%;"></div>
+                        </div>
+                    </div>
+
+                    <div class="system-info">
+                        <div class="info-card">
+                            <h4>🌟 Astrología</h4>
+                            <p>Vuestros signos tienen excelente afinidad elemental. 
+                            La comunicación fluye naturalmente entre ustedes.</p>
+                        </div>
+                        <div class="info-card">
+                            <h4>🎭 Diseño Humano</h4>
+                            <p>Vuestras energías se complementan. Uno inicia, el otro sostiene. 
+                            Respeten sus diferentes formas de tomar decisiones.</p>
+                        </div>
+                        <div class="info-card">
+                            <h4>🔢 Numerología</h4>
+                            <p>Vuestros números de destino crean una vibración armoniosa. 
+                            Juntos pueden lograr grandes cosas.</p>
+                        </div>
+                        <div class="info-card">
+                            <h4>🌀 Kin Maya</h4>
+                            <p>Vuestros Kines se encuentran en la misma onda encantada. 
+                            Comparten propósitos espirituales similares.</p>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 20px; padding: 20px; background: rgba(255,255,255,0.05); border-radius: 10px;">
+                        <h4 style="color: #ff6b9d; margin-bottom: 10px;">💡 Consejos para la Relación:</h4>
+                        <ul style="line-height: 2;">
+                            <li>✨ Fortalezas: Comunicación fluida, objetivos compartidos, respeto mutuo</li>
+                            <li>⚠️ Retos: Necesitan equilibrar independencia con cercanía</li>
+                            <li>🌱 Crecimiento: Apoyen los sueños individuales del otro</li>
+                            <li>💫 Momento ideal: Las próximas semanas son favorables para profundizar el vínculo</li>
+                        </ul>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('resultadoCompat').innerHTML = resultado;
+        }
+    </script>
+</body>
+</html>
